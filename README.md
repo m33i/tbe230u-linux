@@ -24,18 +24,22 @@ that works **offline**, so you can set it up on a PC whose only network is the a
 
 ## Usage
 
-```bash
-# Optional, for offline installs: bundle the build tools (needs Docker)
-bash scripts/fetch-debs.sh
+**Offline (easiest):** download `tbe230u-linux-ubuntu24.04.zip` from the
+[latest release](../../releases/latest) on any computer and unzip it onto a USB stick. On the Ubuntu machine:
 
-# On the Ubuntu machine (copy the folder over on a USB stick if it has no internet)
+```bash
+cd /media/$USER/<usb-name>/tbe230u-linux
 sudo bash install.sh
 ```
 
+**With internet:** clone the repo and run `sudo bash install.sh`. Without the `debs/` folder, the installer
+downloads the build tools itself. If the adapter is your only network, USB tethering from a phone works
+on Ubuntu without extra drivers.
+
+**Rebuild the offline packages** (needs Docker): `bash scripts/fetch-debs.sh`
+
 If Secure Boot is enabled, the installer asks you to choose a one-time password. Reboot, then in the blue
 MOK Manager screen choose **Enroll MOK → Continue → Yes**, type that password and reboot.
-
-Without the `debs/` folder, the installer downloads the build tools from the internet instead.
 
 ## Notes
 
