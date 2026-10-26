@@ -10,6 +10,10 @@ that works **offline**, so you can set it up on a PC whose only network is the a
   Realtek RTL8912AU chip, plus firmware. Changes from upstream:
   - adds USB ID `37ad:0105` (some TBE230U units use it, and neither upstream nor the mainline kernel lists it)
   - builds with the same gcc version the kernel was built with (needed for Ubuntu HWE kernels)
+  - connects USB adapters as Wi-Fi 6 (HE) instead of Wi-Fi 7 (EHT): on EHT links the RTL8912AU stops
+    receiving every few minutes and disconnects ([morrownr/rtw89#104](https://github.com/morrownr/rtw89/issues/104)),
+    while HE at 160 MHz is stable and still reaches ~950 Mbps. To try EHT anyway, add
+    `options rtw89_core_git usb_no_eht=N` to `/etc/modprobe.d/rtw89.conf` and reboot
 - `install.sh`: installs the build tools, then builds the driver with DKMS (so it rebuilds itself on kernel
   updates), installs the firmware, handles Secure Boot key enrollment and loads the driver
 - `uninstall.sh`: removes everything
@@ -46,6 +50,10 @@ MOK Manager screen choose **Enroll MOK → Continue → Yes**, type that passwor
 - Mainline Linux supports the RTL8912AU from kernel 7.1, and the TP-Link ID `37ad:0104` from 7.4.
   On those kernels this repo isn't needed.
 - MLO (Wi-Fi 7 multi-link) is not expected to work on Linux.
+- NetworkManager scans in the background every 5 minutes, which pauses traffic for ~1.5 s. With a single
+  router you can turn that off by locking the connection to the router's 5 GHz BSSID (it disables roaming):
+  `nmcli connection modify "<your SSID>" 802-11-wireless.bssid <BSSID>` (see `nmcli -f SSID,BSSID,FREQ dev wifi`).
+  Undo with `802-11-wireless.bssid ""`.
 
 ## License
 

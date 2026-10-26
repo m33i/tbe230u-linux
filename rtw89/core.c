@@ -26,6 +26,13 @@ static bool rtw89_disable_ps_mode;
 module_param_named(disable_ps_mode, rtw89_disable_ps_mode, bool, 0644);
 MODULE_PARM_DESC(disable_ps_mode, "Set Y to disable low power mode");
 
+/* RTL8922AU over USB: RX stalls and disconnects on EHT links, HE is stable
+ * and still fills 160 MHz (morrownr/rtw89#104)
+ */
+static bool rtw89_usb_no_eht = true;
+module_param_named(usb_no_eht, rtw89_usb_no_eht, bool, 0444);
+MODULE_PARM_DESC(usb_no_eht, "Use Wi-Fi 6 (HE) instead of Wi-Fi 7 (EHT) on USB devices (default Y)");
+
 #define RTW89_DEF_CHAN(_freq, _hw_val, _flags, _band)	\
 	{ .center_freq = _freq, .hw_value = _hw_val, .flags = _flags, .band = _band, }
 #define RTW89_DEF_CHAN_2G(_freq, _hw_val)	\
@@ -6450,6 +6457,13 @@ rtw89_core_sband_dup(struct rtw89_dev *rtwdev,
 				     GFP_KERNEL);
 	if (!dup->channels)
 		return NULL;
+
+	if (rtwdev->hci.type == RTW89_HCI_TYPE_USB && rtw89_usb_no_eht) {
+		int i;
+
+		for (i = 0; i < dup->n_channels; i++)
+			dup->channels[i].flags |= IEEE80211_CHAN_NO_EHT;
+	}
 
 	dup->bitrates = devm_kmemdup(rtwdev->dev, sband->bitrates,
 				     sizeof(*sband->bitrates) * sband->n_bitrates,
